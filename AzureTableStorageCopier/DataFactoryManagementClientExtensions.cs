@@ -17,7 +17,7 @@ namespace AzureTableStorageCopier
             string sourceStorageConnectionString,
             string storageLinkedServiceName)
         {
-            Console.WriteLine("Creating linked service " + storageLinkedServiceName + "...");
+            Console.WriteLine($"Creating linked service {storageLinkedServiceName}...");
             var storageLinkedService = new LinkedServiceResource(
                 new AzureStorageLinkedService
                 {
@@ -30,7 +30,7 @@ namespace AzureTableStorageCopier
 
         internal static void CreateDataFactory(this DataFactoryManagementClient client, AzureConfig config)
         {
-            Console.WriteLine("Creating data factory " + config.DataFactoryName + "...");
+            Console.WriteLine($"Creating data factory {config.DataFactoryName}...");
             var dataFactory = new Factory
             {
                 Location = config.Region,
@@ -47,7 +47,7 @@ namespace AzureTableStorageCopier
 
         internal static void DeleteDataFactory(this DataFactoryManagementClient client, AzureConfig config)
         {
-            Console.WriteLine("Deleting data factory " + config.DataFactoryName + "...");
+            Console.WriteLine($"Deleting data factory {config.DataFactoryName}...");
             client.Factories.Delete(config.ResourceGroup, config.DataFactoryName);
         }
 
@@ -73,7 +73,7 @@ namespace AzureTableStorageCopier
             Console.WriteLine(SafeJsonConvert.SerializeObject(blobDataset, client.SerializationSettings));
         }
 
-        internal static void CreatePipline(
+        internal static void CreatePipeline(
             this DataFactoryManagementClient client,
             AzureConfig config,
             string pipelineName,
@@ -92,14 +92,14 @@ namespace AzureTableStorageCopier
         {
             Console.WriteLine("Creating pipeline run...");
             var runResponse = (await client.Pipelines.CreateRunWithHttpMessagesAsync(config.ResourceGroup, config.DataFactoryName, pipelineName)).Body;
-            Console.WriteLine("Pipeline run ID: " + runResponse.RunId);
+            Console.WriteLine($"Pipeline run ID: {runResponse.RunId}");
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
             PipelineRun pipelineRun;
             while (true)
             {
-                pipelineRun = client.PipelineRuns.Get(config.ResourceGroup, config.DataFactoryName, runResponse.RunId);
-                Console.WriteLine("Status: " + pipelineRun.Status);
+                pipelineRun = await client.PipelineRuns.GetAsync(config.ResourceGroup, config.DataFactoryName, runResponse.RunId);
+                Console.WriteLine($"Status: {pipelineRun.Status}");
                 if (pipelineRun.Status == "InProgress" || pipelineRun.Status == "Queued")
                 {
                     System.Threading.Thread.Sleep(5000);
@@ -112,16 +112,14 @@ namespace AzureTableStorageCopier
             return pipelineRun;
         }
 
-        internal static void GetDetails(this DataFactoryManagementClient client, AzureConfig config, string piplineRunId, string status)
+        internal static void GetDetails(this DataFactoryManagementClient client, AzureConfig config, string pipelineRunId, string status)
         {
             Console.WriteLine("Checking copy activity run details...");
             var filterParams = new RunFilterParameters(DateTime.UtcNow.AddMinutes(-10), DateTime.UtcNow.AddMinutes(10));
-            var queryResponse = client.ActivityRuns.QueryByPipelineRun(config.ResourceGroup, config.DataFactoryName, piplineRunId, filterParams);
-            if (status == "Succeeded")
-                Console.WriteLine(queryResponse.Value.First().Output);
-            else
-                Console.WriteLine(queryResponse.Value.First().Error);
-
+            var queryResponse = client.ActivityRuns.QueryByPipelineRun(config.ResourceGroup, config.DataFactoryName, pipelineRunId, filterParams);
+            Console.WriteLine(status == "Succeeded"
+                ? queryResponse.Value.First().Output
+                : queryResponse.Value.First().Error);
         }
     } 
 }

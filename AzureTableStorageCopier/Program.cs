@@ -54,7 +54,7 @@ namespace AzureTableStorageCopier
             }
 
             // Create a pipeline with a copy activity
-            client.CreatePipline(config, pipelineName, activities.ToArray());
+            client.CreatePipeline(config, pipelineName, activities.ToArray());
 
             // Create a pipeline run
             var pipelineRun = await client.CreatePipelineRunAsync(config, pipelineName);
@@ -93,7 +93,7 @@ namespace AzureTableStorageCopier
 
         private static async Task<DataFactoryManagementClient> GetClient(AzureConfig config)
         {
-            var context = new AuthenticationContext("https://login.windows.net/" + config.TenantId);
+            var context = new AuthenticationContext($"https://login.windows.net/{config.TenantId}");
             var cc = new ClientCredential(config.ApplicationId, config.AuthenticationKey);
             var result = await context.AcquireTokenAsync("https://management.azure.com/", cc);
             var client = new DataFactoryManagementClient(new TokenCredentials(result.AccessToken))
