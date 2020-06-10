@@ -105,7 +105,8 @@ namespace AzureTableStorageCopier.Common
                     {
                         ReferenceName = sqlDatabaseLinkedServiceName
                     },
-                    TableName = tableName
+                    Schema = "dbo",
+                    Table = tableName
                 }
             );
             client.Datasets.CreateOrUpdate(config.ResourceGroup, config.DataFactoryName, sqlDatabaseDasetName, blobDataset);

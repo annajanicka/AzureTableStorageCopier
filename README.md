@@ -12,6 +12,20 @@ If you want to learn more visit
 4. Configure other properties in appsettings.json (if you want to migrate to SQL, remember about appsettings.json in DbUp project)
 5. If you migrate to SQL run DbUp project
 
+If you don't want to use stored procedure and you would prefer SQL tables to autocreate, `Schema` and `Table` properties in `AzureSqlTableDataset` are mandatory.
+
+```
+new AzureSqlTableDataset
+{
+    LinkedServiceName = new LinkedServiceReference
+    {
+        ReferenceName = sqlDatabaseLinkedServiceName
+    },
+    Schema = "dbo",
+    Table = tableName
+}
+```
+
 ## Contains
 
 - [x] .NETCore 3.1

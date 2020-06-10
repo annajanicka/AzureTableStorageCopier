@@ -348,6 +348,6 @@ MigrationBackup/
 
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
-/AzureTableStorageCopier/appsettings.local.json
 /AzureTableStorageCopier.ToSQL/appsettings.local.json
 /AzureTableStorageCopier.DbUp/appsettings.local.json
+/AzureTableStorageCopier.ToTableStorage/appsettings.local.json

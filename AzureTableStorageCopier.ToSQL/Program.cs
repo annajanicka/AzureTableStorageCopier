@@ -26,7 +26,7 @@ namespace AzureTableStorageCopier.ToSQL
             var sourceStorageLinkedServiceName = "SourceAzureStorageLinkedService";
             var targetDatabaseLinkedServiceName = "TargetAzureSqlDatabaseLinkedService";
 
-            var pipelineName = "CopyATSPipeline";
+            var pipelineName = "CopyATSToSQL_Pipeline";
 
             // Authenticate and create a data factory management client
             using var client = await new DataFactoryManagementClientProvider(config).GetClient();
@@ -40,8 +40,8 @@ namespace AzureTableStorageCopier.ToSQL
 
             var activities = new List<Activity>();
 
-            var sourceStorageDatasetName = $"{tableName}-source";
-            var targetDatasetName = $"{tableName}-target";
+            var sourceStorageDatasetName = $"{tableName}_source";
+            var targetDatasetName = $"{tableName}_target";
 
             // Create an Azure Table Storage dataset - this has to match your data type created in script 001_CreateUserType.sql
             client.CreateAzureTableDataset(config, sourceStorageLinkedServiceName, sourceStorageDatasetName, tableName);
@@ -83,13 +83,14 @@ namespace AzureTableStorageCopier.ToSQL
                         ReferenceName = targetStorageDatasetName
                     }
                 },
-                Source = new AzureTableSource() ,
+                Source = new AzureTableSource(),
+                // use: Sink = new AzureSqlSink { TableOption = "autoCreate" }
+                // if you want to  autocreate this table
                 Sink = new AzureSqlSink
                 {
                     SqlWriterStoredProcedureName = "spUpsetrUser", // stored procedure defined in 003_CreateUpsertUsers.sql
                     StoredProcedureTableTypeParameterName = "User",
                     SqlWriterTableType = "UserType", // UserType defined in 001_CreateUserType.sql,
-                   
                 }
             };
         }

@@ -26,7 +26,7 @@ namespace AzureTableStorageCopier.ToTableStorage
             var sourceStorageLinkedServiceName = "SourceAzureStorageLinkedService";
             var targetStorageLinkedServiceName = "TargetAzureStorageLinkedService";
 
-            var pipelineName = "CopyATSPipeline";
+            var pipelineName = "CopyATSToATS_Pipeline";
 
             // Authenticate and create a data factory management client
             using var client = await new DataFactoryManagementClientProvider(config).GetClient();
@@ -41,8 +41,8 @@ namespace AzureTableStorageCopier.ToTableStorage
             var activities = new List<Activity>();
             foreach (var tableName in tables)
             {
-                var sourceStorageDatasetName = $"{tableName}-source";
-                var targetDatasetName = $"{tableName}-target";
+                var sourceStorageDatasetName = $"{tableName}_source";
+                var targetDatasetName = $"{tableName}_target";
 
                 // Create an Azure Blob datasets
                 client.CreateAzureTableDataset(config, sourceStorageLinkedServiceName, sourceStorageDatasetName, tableName);
@@ -69,7 +69,7 @@ namespace AzureTableStorageCopier.ToTableStorage
         {
             return new CopyActivity
             {
-                Name = $"Copy-{tableName}",
+                Name = $"Copy_{tableName}",
                 Inputs = new List<DatasetReference>
                 {
                     new DatasetReference
