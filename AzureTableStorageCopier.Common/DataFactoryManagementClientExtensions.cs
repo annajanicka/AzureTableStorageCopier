@@ -7,28 +7,45 @@ using Microsoft.Azure.Management.DataFactory.Models;
 using Microsoft.Rest.Serialization;
 using Activity = Microsoft.Azure.Management.DataFactory.Models.Activity;
 
-namespace AzureTableStorageCopier
+namespace AzureTableStorageCopier.Common
 {
-    internal static class DataFactoryManagementClientExtensions
+    public static class DataFactoryManagementClientExtensions
     {
-        internal static void AddAzureStorageLinkedService(
+        public static void AddAzureStorageLinkedService(
             this DataFactoryManagementClient client,
             AzureConfig config,
-            string sourceStorageConnectionString,
+            string storageConnectionString,
             string storageLinkedServiceName)
         {
             Console.WriteLine($"Creating linked service {storageLinkedServiceName}...");
             var storageLinkedService = new LinkedServiceResource(
                 new AzureStorageLinkedService
                 {
-                    ConnectionString = sourceStorageConnectionString
+                    ConnectionString = storageConnectionString
                 }
             );
             client.LinkedServices.CreateOrUpdate(config.ResourceGroup, config.DataFactoryName, storageLinkedServiceName, storageLinkedService);
             Console.WriteLine(SafeJsonConvert.SerializeObject(storageLinkedService, client.SerializationSettings));
         }
 
-        internal static void CreateDataFactory(this DataFactoryManagementClient client, AzureConfig config)
+        public static void AddAzureSqlDatabaseLinkedService(
+            this DataFactoryManagementClient client,
+            AzureConfig config,
+            string sqlDatabaseConnectionString,
+            string sqlDatabaseLinkedServiceName)
+        {
+            Console.WriteLine($"Creating linked service {sqlDatabaseLinkedServiceName}...");
+            var storageLinkedService = new LinkedServiceResource(
+                new AzureSqlDatabaseLinkedService
+                {
+                    ConnectionString = sqlDatabaseConnectionString
+                }
+            );
+            client.LinkedServices.CreateOrUpdate(config.ResourceGroup, config.DataFactoryName, sqlDatabaseLinkedServiceName, storageLinkedService);
+            Console.WriteLine(SafeJsonConvert.SerializeObject(storageLinkedService, client.SerializationSettings));
+        }
+
+        public static void CreateDataFactory(this DataFactoryManagementClient client, AzureConfig config)
         {
             Console.WriteLine($"Creating data factory {config.DataFactoryName}...");
             var dataFactory = new Factory
@@ -45,13 +62,13 @@ namespace AzureTableStorageCopier
             }
         }
 
-        internal static void DeleteDataFactory(this DataFactoryManagementClient client, AzureConfig config)
+        public static void DeleteDataFactory(this DataFactoryManagementClient client, AzureConfig config)
         {
             Console.WriteLine($"Deleting data factory {config.DataFactoryName}...");
             client.Factories.Delete(config.ResourceGroup, config.DataFactoryName);
         }
 
-        internal static void CreateAzureTableDataset(
+        public static void CreateAzureTableDataset(
             this DataFactoryManagementClient client,
             AzureConfig config,
             string storageLinkedServiceName,
@@ -73,7 +90,29 @@ namespace AzureTableStorageCopier
             Console.WriteLine(SafeJsonConvert.SerializeObject(blobDataset, client.SerializationSettings));
         }
 
-        internal static void CreatePipeline(
+        public static void CreateAzureSqlTableDataset(
+            this DataFactoryManagementClient client,
+            AzureConfig config,
+            string sqlDatabaseLinkedServiceName,
+            string sqlDatabaseDasetName,
+            string tableName)
+        {
+            Console.WriteLine($"Creating dataset {sqlDatabaseDasetName}...");
+            var blobDataset = new DatasetResource(
+                new AzureSqlTableDataset
+                {
+                    LinkedServiceName = new LinkedServiceReference
+                    {
+                        ReferenceName = sqlDatabaseLinkedServiceName
+                    },
+                    TableName = tableName
+                }
+            );
+            client.Datasets.CreateOrUpdate(config.ResourceGroup, config.DataFactoryName, sqlDatabaseDasetName, blobDataset);
+            Console.WriteLine(SafeJsonConvert.SerializeObject(blobDataset, client.SerializationSettings));
+        }
+
+        public static void CreatePipeline(
             this DataFactoryManagementClient client,
             AzureConfig config,
             string pipelineName,
@@ -88,7 +127,7 @@ namespace AzureTableStorageCopier
             Console.WriteLine(SafeJsonConvert.SerializeObject(pipeline, client.SerializationSettings));
         }
 
-        internal static async Task<PipelineRun> CreatePipelineRunAsync(this DataFactoryManagementClient client, AzureConfig config, string pipelineName)
+        public static async Task<PipelineRun> CreatePipelineRunAsync(this DataFactoryManagementClient client, AzureConfig config, string pipelineName)
         {
             Console.WriteLine("Creating pipeline run...");
             var runResponse = (await client.Pipelines.CreateRunWithHttpMessagesAsync(config.ResourceGroup, config.DataFactoryName, pipelineName)).Body;
@@ -112,7 +151,7 @@ namespace AzureTableStorageCopier
             return pipelineRun;
         }
 
-        internal static void GetDetails(this DataFactoryManagementClient client, AzureConfig config, string pipelineRunId, string status)
+        public static void GetDetails(this DataFactoryManagementClient client, AzureConfig config, string pipelineRunId, string status)
         {
             Console.WriteLine("Checking copy activity run details...");
             var filterParams = new RunFilterParameters(DateTime.UtcNow.AddMinutes(-10), DateTime.UtcNow.AddMinutes(10));

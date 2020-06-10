@@ -3,7 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29806.167
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AzureTableStorageCopier", "AzureTableStorageCopier\AzureTableStorageCopier.csproj", "{A5FCF70E-AF52-4EBC-B3E3-DE2149F6A6DB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AzureTableStorageCopier.ToTableStorage", "AzureTableStorageCopier\AzureTableStorageCopier.ToTableStorage.csproj", "{A5FCF70E-AF52-4EBC-B3E3-DE2149F6A6DB}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AzureTableStorageCopier.ToSQL", "AzureTableStorageCopier.ToSQL\AzureTableStorageCopier.ToSQL.csproj", "{0FB94142-760D-437C-A981-622C975EAA7D}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AzureTableStorageCopier.Common", "AzureTableStorageCopier.Common\AzureTableStorageCopier.Common.csproj", "{A33F259D-AF1D-4C38-8FC5-995F440FBA87}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AzureTableStorageCopier.DbUp", "AzureTableStorageCopier.DbUp\AzureTableStorageCopier.DbUp.csproj", "{0DD946CF-FA21-42E1-B7A5-5697D9B11E6B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +21,18 @@ Global
 		{A5FCF70E-AF52-4EBC-B3E3-DE2149F6A6DB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A5FCF70E-AF52-4EBC-B3E3-DE2149F6A6DB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A5FCF70E-AF52-4EBC-B3E3-DE2149F6A6DB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0FB94142-760D-437C-A981-622C975EAA7D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0FB94142-760D-437C-A981-622C975EAA7D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0FB94142-760D-437C-A981-622C975EAA7D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0FB94142-760D-437C-A981-622C975EAA7D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A33F259D-AF1D-4C38-8FC5-995F440FBA87}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A33F259D-AF1D-4C38-8FC5-995F440FBA87}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A33F259D-AF1D-4C38-8FC5-995F440FBA87}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A33F259D-AF1D-4C38-8FC5-995F440FBA87}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0DD946CF-FA21-42E1-B7A5-5697D9B11E6B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0DD946CF-FA21-42E1-B7A5-5697D9B11E6B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0DD946CF-FA21-42E1-B7A5-5697D9B11E6B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0DD946CF-FA21-42E1-B7A5-5697D9B11E6B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

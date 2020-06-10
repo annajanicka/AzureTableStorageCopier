@@ -1,4 +1,4 @@
-﻿namespace AzureTableStorageCopier
+﻿namespace AzureTableStorageCopier.Common
 {
     public class AzureConfig
     {

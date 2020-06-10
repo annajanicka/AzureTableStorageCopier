@@ -5,7 +5,7 @@ using Microsoft.Extensions.Configuration;
 using System.Threading.Tasks;
 using AzureTableStorageCopier.Common;
 
-namespace AzureTableStorageCopier.ToTableStorage
+namespace AzureTableStorageCopier.ToSQL
 {
     class Program
     {
@@ -18,13 +18,13 @@ namespace AzureTableStorageCopier.ToTableStorage
                     .Build();
 
             var config = configurationRoot.GetSection("Azure").Get<AzureConfig>();
-            var tables = configurationRoot.GetSection("tables").Get<string>().Split(",");
             var sourceStorageConnectionString = configurationRoot.GetConnectionString("SourceStorage");
-            var targetStorageConnectionString = configurationRoot.GetConnectionString("TargetStorage");
+            var targetDatabaseConnectionString = configurationRoot.GetConnectionString("TargetDatabase");
+            var tableName = "UserTable"; // name of your table storage table
 
             // name of the Azure Storage linked service, blob dataset, and the pipeline
             var sourceStorageLinkedServiceName = "SourceAzureStorageLinkedService";
-            var targetStorageLinkedServiceName = "TargetAzureStorageLinkedService";
+            var targetDatabaseLinkedServiceName = "TargetAzureSqlDatabaseLinkedService";
 
             var pipelineName = "CopyATSPipeline";
 
@@ -33,23 +33,22 @@ namespace AzureTableStorageCopier.ToTableStorage
             client.CreateDataFactory(config);
 
             // Create an Azure Storage linked service for target
-            client.AddAzureStorageLinkedService(config, targetStorageConnectionString, targetStorageLinkedServiceName);
+            client.AddAzureSqlDatabaseLinkedService(config, targetDatabaseConnectionString, targetDatabaseLinkedServiceName);
 
             // Create an Azure Storage linked service for source
             client.AddAzureStorageLinkedService(config, sourceStorageConnectionString, sourceStorageLinkedServiceName);
 
             var activities = new List<Activity>();
-            foreach (var tableName in tables)
-            {
-                var sourceStorageDatasetName = $"{tableName}-source";
-                var targetDatasetName = $"{tableName}-target";
 
-                // Create an Azure Blob datasets
-                client.CreateAzureTableDataset(config, sourceStorageLinkedServiceName, sourceStorageDatasetName, tableName);
-                client.CreateAzureTableDataset(config, targetStorageLinkedServiceName, targetDatasetName, tableName);
+            var sourceStorageDatasetName = $"{tableName}-source";
+            var targetDatasetName = $"{tableName}-target";
 
-                activities.Add(GetTableStorageCopyActivity(sourceStorageDatasetName, targetDatasetName, tableName));
-            }
+            // Create an Azure Table Storage dataset - this has to match your data type created in script 001_CreateUserType.sql
+            client.CreateAzureTableDataset(config, sourceStorageLinkedServiceName, sourceStorageDatasetName, tableName);
+            // Create an Azure SQL Table dataset
+            client.CreateAzureSqlTableDataset(config, targetDatabaseLinkedServiceName, targetDatasetName, tableName);
+
+            activities.Add(GetTableStorageCopyActivity(sourceStorageDatasetName, targetDatasetName, tableName));
 
             // Create a pipeline with a copy activity
             client.CreatePipeline(config, pipelineName, activities.ToArray());
@@ -60,7 +59,7 @@ namespace AzureTableStorageCopier.ToTableStorage
             // Check the copy activity run details
             client.GetDetails(config, pipelineRun.RunId, pipelineRun.Status);
 
-            //client.DeleteDataFactory(config);
+            client.DeleteDataFactory(config);
 
             Console.WriteLine("All done!");
         }
@@ -84,8 +83,14 @@ namespace AzureTableStorageCopier.ToTableStorage
                         ReferenceName = targetStorageDatasetName
                     }
                 },
-                Source = new AzureTableSource(),
-                Sink = new AzureTableSink { AzureTableRowKeyName = "RowKey", AzureTablePartitionKeyName = "PartitionKey" }
+                Source = new AzureTableSource() ,
+                Sink = new AzureSqlSink
+                {
+                    SqlWriterStoredProcedureName = "spUpsetrUser", // stored procedure defined in 003_CreateUpsertUsers.sql
+                    StoredProcedureTableTypeParameterName = "User",
+                    SqlWriterTableType = "UserType", // UserType defined in 001_CreateUserType.sql,
+                   
+                }
             };
         }
     }
