@@ -60,7 +60,7 @@ namespace AzureTableStorageCopier.ToTableStorage
             // Check the copy activity run details
             client.GetDetails(config, pipelineRun.RunId, pipelineRun.Status);
 
-            //client.DeleteDataFactory(config);
+            client.DeleteDataFactory(config);
 
             Console.WriteLine("All done!");
         }
